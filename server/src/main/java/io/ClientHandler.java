@@ -1,18 +1,19 @@
 package io;
 
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ClientHandler implements Runnable {
+public class ClientHandler implements Runnable, Closeable {
 
     // serverDir
 
-    private final Socket socket;
-    private final Server server;
-    private DataInputStream is;
-    private DataOutputStream os;
+    protected final Socket socket;
+    protected final Server server;
+    protected DataInputStream is;
+    protected DataOutputStream os;
 
     public ClientHandler(Socket socket, Server server) {
         this.socket = socket;
@@ -41,5 +42,12 @@ public class ClientHandler implements Runnable {
             System.err.println("Connection was broken");
             server.kickClient(this);
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        os.close();
+        is.close();
+        socket.close();
     }
 }

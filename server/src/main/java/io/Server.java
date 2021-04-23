@@ -12,12 +12,14 @@ public class Server {
     public Server(int port) {
         clients = new ConcurrentLinkedQueue<>();
         try {
+
             ServerSocket server = new ServerSocket(port);
             System.out.println("Server started!");
+
             while (true) {
                 Socket socket = server.accept();
                 System.out.println("Client accepted");
-                ClientHandler handler = new ClientHandler(socket, this);
+                ClientHandler handler = new FileHandler(socket, this);
                 clients.add(handler);
                 new Thread(handler).start();
             }
