@@ -1,5 +1,7 @@
 import java.io.DataInputStream;
 
+import handler.CallBack;
+
 public class ReadHandler implements Runnable {
 
     private final DataInputStream is;
@@ -16,7 +18,7 @@ public class ReadHandler implements Runnable {
         try {
             while (true) {
                 String message = is.readUTF();
-                callBack.call(message);
+                // callBack.call(message);
             }
         } catch (Exception e) {
             System.err.println("Exception while read");

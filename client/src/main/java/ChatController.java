@@ -76,14 +76,14 @@ public class ChatController implements Initializable {
 
             init();
 
-            ReadHandler handler = new ReadHandler(is,
-                    message -> Platform.runLater(
-                            () -> input.setText(message)
-                    )
-            );
-            Thread readThread = new Thread(handler);
-            readThread.setDaemon(true);
-            readThread.start();
+//            ReadHandler handler = new ReadHandler(is,
+//                    message -> Platform.runLater(
+//                            // () -> input.setText(message)
+//                    )
+//            );
+//            Thread readThread = new Thread(handler);
+//            readThread.setDaemon(true);
+//            readThread.start();
         } catch (Exception e) {
             System.err.println("Socket error");
         }

@@ -8,10 +8,16 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class NioServer {
+
+    private static String path = "server/serverFiles";
 
     private ServerSocketChannel serverChannel;
     private Selector selector;
@@ -54,10 +60,8 @@ public class NioServer {
         new NioServer();
     }
 
-    private void handleRead(SelectionKey key) {
+    private String getMessageAsString(SocketChannel channel) {
         try {
-
-            SocketChannel channel = (SocketChannel) key.channel();
             ByteBuffer buffer = ByteBuffer.allocate(256);
 
             int read;
@@ -84,21 +88,61 @@ public class NioServer {
 
                 buffer.clear();
             }
-            String message = "from server: " + s.toString();
-
-            System.out.println("received: " + message);
-
-            Set<SelectionKey> keys = selector.keys();
-
-            for (SelectionKey selectionKey : keys) {
-                if (selectionKey.channel() instanceof SocketChannel &&
-                        selectionKey.isValid()) {
-                    SocketChannel responseChannel = (SocketChannel) selectionKey.channel();
-                    responseChannel.write(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)));
-                }
-            }
+            return s.toString();
         } catch (Exception e) {
             System.err.println("Connection was broken");
+            return "err";
+        }
+    }
+
+    private void handleRead(SelectionKey key) {
+        try {
+
+            SocketChannel channel = (SocketChannel) key.channel();
+
+            String message = getMessageAsString(channel).trim();
+
+            String[] parts = message.split(" ");
+
+            if (parts[0].equals("ls")) {
+                writeToChannel(channel, getServerFilesAsString());
+            }
+
+            if (parts[0].equals("cat")) {
+                try {
+                    Path file = Paths.get(path, parts[1]);
+                    String fileData = getFileAsString(file);
+                    writeToChannel(channel, fileData);
+                } catch (Exception e) {
+                    writeToChannel(channel, "WRONG COMMAND\n");
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Connection was broken");
+        }
+    }
+
+    private String getFileAsString(Path path) throws IOException {
+        return Files.lines(path)
+                .collect(Collectors.joining("\n")) + "\n";
+    }
+
+    private void writeToChannel(SocketChannel channel, String message) throws IOException {
+        channel.write(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private String getServerFilesAsString() throws IOException {
+        return Files.list(Paths.get("server", "serverFiles"))
+                .map(this::getFileMeta)
+                .collect(Collectors.joining("\n")) + "\n";
+    }
+
+    private String getFileMeta(Path path) {
+        if (Files.isDirectory(path)) {
+            return path.getFileName().toString() + " [DIR]";
+        } else {
+            return path.getFileName().toString() + " [FILE]";
         }
     }
 
