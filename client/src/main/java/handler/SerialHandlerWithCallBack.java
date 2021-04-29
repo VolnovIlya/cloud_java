@@ -17,4 +17,5 @@ public class SerialHandlerWithCallBack extends SimpleChannelInboundHandler<Messa
                                 Message message) throws Exception {
         callBack.call(message);
     }
+
 }

@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -25,11 +24,13 @@ public class ChatControllerV2 implements Initializable {
     private ObjectEncoderOutputStream os;
 
     public void send(ActionEvent actionEvent) throws IOException {
+
         os.writeObject(Message.builder()
                 .createdAt(LocalDateTime.now())
                 .text(input.getText())
                 .author("user")
                 .build());
+
         input.clear();
     }
 
@@ -55,6 +56,7 @@ public class ChatControllerV2 implements Initializable {
                 e.printStackTrace();
             }
         });
+
         service.setDaemon(true);
         service.start();
     }

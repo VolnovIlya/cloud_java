@@ -17,5 +17,7 @@ public class SerialHandler extends SimpleChannelInboundHandler<Message> {
     protected void channelRead0(ChannelHandlerContext ctx, Message message) throws Exception {
         ctx.writeAndFlush(message);
         log.debug("received: {}", message);
+        // todo
     }
+
 }
